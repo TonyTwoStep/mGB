@@ -1,9 +1,23 @@
-# mGB
+# mGB 
 mGB is a Gameboy cartridge program (You need a Flash Cart and Transfer hardware) That enables the Gameboy to act as a full MIDI supported sound module. It works with the old DMG Gameboy as well as GBC/GBA.
 
 [More information about Arduinoboy](https://github.com/trash80/arduinoboy)
 
 ![ScreenShot](http://trash80.net/arduinoboy/mGB1_2_0.png)
+
+## Building mGB from Source in 2022 (Makefile/sdcc toolchain)
+1.  Recursively clone this mGB repo
+    - `git clone --recurse-submodules https://github.com/TonyTwoStep/mGB.git`
+2.  Install old `sdcc` version from RPM package, specifically a version prior to 2020 where `sdcclib` was removed, 
+    - I've included version 3.6 in this repo under `Source/build_tools/` 
+    - `rpm -i ./Source/build_tools/sdcc-3.6.0-bp153.1.149.x86_64.rpm`
+3.  Change into the gbdk-n submodule's directory and compile it
+    - `cd gbdk-n && make`
+    - ensure it compiles without errors
+4.  Change into the Source directory of mGB
+5.  Compile mGB from source
+    - `make`
+    - output will be in that dir, `mgb.gb`
 
 ## Change Log
  * 06/26/15 
@@ -69,47 +83,85 @@ Note: the name and number at the bottom left of the screen indicates the midi CC
  * PU1 - MIDI CH1
   * Program Change: 1 to 15
   * PB: Pitch bend - up to +/- 12
-  * cc1: Pulse width - 0,32,64,127
-  * cc2: Envelope mode - 0 to 127, 16 possible steps
-  * cc3: Pitch sweep
-  * cc4: Pitchbend Range
-  * cc5: Load Preset
-  * cc10: Pan
-  * cc64: Sustain- Turns off note off. <64 = off, >63 = on
+   * cc1: Pulse width - 0,32,64,127
+   * cc2: Envelope mode - 0 to 127, 16 possible steps
+   * cc3: Pitch sweep
+   * cc4: Pitchbend Range
+   * cc5: Load Preset
+   * cc10: Pan
+   * cc64: Sustain- Turns off note off. <64 = off, >63 = on
 
  * PU2 - MIDI CH2
-  * Program Change: 1 to 15
-  * PB: Pitch bend - up to +/- 12
-  * cc1: Pulse width - 0,32,64,127
-  * cc2: Envelope mode - 0 to 127, 16 possible steps
-  * cc4: Pitchbend Range
-  * cc5: Load Preset
-  * cc10: Pan
-  * cc64: Sustain- Turns off note off. <64 = off, >63 = on
+   * Program Change: 1 to 15
+   * PB: Pitch bend - up to +/- 12
+   * cc1: Pulse width - 0,32,64,127
+   * cc2: Envelope mode - 0 to 127, 16 possible steps
+   * cc4: Pitchbend Range
+   * cc5: Load Preset
+   * cc10: Pan
+   * cc64: Sustain- Turns off note off. <64 = off, >63 = on
 
  * WAV - MIDI CH3
-  * Program Change: 1 to 15
-  * PB: pitch bend - up to +/- 12
-  * cc1: shape select : 16 possible on a 0 to 127 range
-  * cc2: shape offset : 32 possible on a 0 to 127 range
-  * cc3: Pitch Sweep speed. 0=Off, 1-127 speed.
-  * cc4: Pitchbend Range
-  * cc5: Load Preset
-  * cc10: pan
-  * cc64: Sustain- turns off note off. <64 = off, >63 = on
+   * Program Change: 1 to 15
+   * PB: pitch bend - up to +/- 12
+   * cc1: shape select : 16 possible on a 0 to 127 range
+   * cc2: shape offset : 32 possible on a 0 to 127 range
+   * cc3: Pitch Sweep speed. 0=Off, 1-127 speed.
+   * cc4: Pitchbend Range
+   * cc5: Load Preset
+   * cc10: pan
+   * cc64: Sustain- turns off note off. <64 = off, >63 = on
 
  * NOISE - MIDI CH4
-  * Program Change: 1 to 15
-  * PB: pitch bend +/-24
-  * cc2: envelope mode - 0 to 127, 16 possible steps
-  * cc5: Load Preset
-  * cc10: pan
-  * cc64: (sustain) turns off note off. <64 = off, >63 = on
+   * Program Change: 1 to 15
+   * PB: pitch bend +/-24
+   * cc2: envelope mode - 0 to 127, 16 possible steps
+   * cc5: Load Preset
+   * cc10: pan
+   * cc64: (sustain) turns off note off. <64 = off, >63 = on
 
  * POLY MODE - MIDI CH5 - Plays Pu1/Pu2 and Wav in poly
-  * Program Change: 1 to 15
-  * PB: pitch bend +/-2
-  * cc1: See cc1
-  * cc5: Load Preset
-  * cc10: pan
-  * cc64: (sustain) turns off note off. <64 = off, >63 = on
+   * Program Change: 1 to 15
+   * PB: pitch bend +/-2
+   * cc1: See cc1
+   * cc5: Load Preset
+   * cc10: pan
+   * cc64: (sustain) turns off note off. <64 = off, >63 = on
+
+## Custom graphic pause screen
+Assumes above build steps were done and tested before introducing more variables to the experiment
+- Created a graphic in GIMP
+    - 160x144 resolution
+    - 4 colors only (image->mode->indexed->4 colors)
+    - export as PCX (Zsoft in the file extension menu of export)
+- Convert the PCX to C tile and map arrays
+    - Copy PCX files into the directory where `pcx2gb.exe` is located (included in this project under `Source/build_tools`) 
+    - Launch `doxbox`
+    - While in DOS, execute a command like `PCX2GB.EXE o d CUSTOMGFX.PCX TILEOUT.C MAPOUT.C`
+    - Press enter a few times and it will eventually spit out the two C files above
+- Append these two data structures to the end of `mGB.h`
+- Change their filetype from `unsigned char` to `const UBYTE`
+- In the `toggleScreen()` function of `mGBDisplayFunctions.c` I made the following changes:
+
+```
+void toggleScreen()
+{
+        if(currentScreen == 0) {
+                DISPLAY_ON;
+                displaySetup(); // add this to re-setup the background tiles and cursor after showing your image
+                showMainScreen();
+
+        } else {
+                currentScreen = 0;
+                DISPLAY_OFF;
+                set_bkg_data(0, 255, yourCustomTiles); // load the tiles
+                set_bkg_tiles(0, 0, 20, 18, yourCustomMap); // set the map
+                DISPLAY_ON; // turn the display on
+                hideCursor(); // hide the cursor which was showing as an artifact on the pic
+
+        }
+}
+```
+
+- Compile and run to test on real hardware
+- Ensure MIDI actually works too
