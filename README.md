@@ -22,9 +22,9 @@ mGB is a Gameboy cartridge program (You need a Flash Cart and Transfer hardware)
   * Project was moved to this repo where I updated dependencies and the sdcc/makefile toolchain so that it builds in modern day
   * Gameboy color palettes were fixed for versions compiled with the Makefile
   * Preset saving fixed
-  * WIP fix notes over G5 not working in MIDI channels
-  * 
-
+  * Fix notes over G5 not working in MIDI channels
+  * Add Rom header
+  * Add ability to use a custom pause screen
  * 06/26/15 
    * Project has been moved to GitHub along with sourcecode.
  * 12/21/12 1.3.3
