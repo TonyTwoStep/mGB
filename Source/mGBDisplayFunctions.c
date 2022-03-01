@@ -223,10 +223,18 @@ void toggleScreen()
 {
 	if(currentScreen == 0) {
 		DISPLAY_ON;
+                displaySetup();
+		//set_bkg_data(0, 92, data_font);
 		showMainScreen();
+
 	} else {
 		currentScreen = 0;
-		DISPLAY_OFF;
+	        DISPLAY_OFF;
+                set_bkg_data(0, 255, customTiles);
+                set_bkg_tiles(0, 0, 20, 18, customMap);
+                DISPLAY_ON;
+                hideCursor();
+
 	}
 }
 
