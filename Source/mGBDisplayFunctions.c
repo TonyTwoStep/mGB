@@ -224,7 +224,6 @@ void toggleScreen()
 	if(currentScreen == 0) {
 		DISPLAY_ON;
                 displaySetup();
-		//set_bkg_data(0, 92, data_font);
 		showMainScreen();
 
 	} else {
