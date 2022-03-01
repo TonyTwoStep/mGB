@@ -8,10 +8,8 @@ mGB is a Gameboy cartridge program (You need a Flash Cart and Transfer hardware)
 ## Building mGB from Source in 2022 (Makefile/sdcc toolchain)
 1.  Recursively clone this mGB repo
     - `git clone --recurse-submodules https://github.com/TonyTwoStep/mGB.git`
-2.  Install old `sdcc` version from RPM package, specifically a version prior to 2020 where `sdcclib` was removed, 
-    - I've included version 3.6 in this repo under `Source/build_tools/` 
-    - `rpm -i ./Source/build_tools/sdcc-3.6.0-bp153.1.149.x86_64.rpm`
-3.  Change into the gbdk-n submodule's directory and compile it
+2. I've updated the submodule for `gbdk-n` to work with newer versions of SDCC (since `sdcclib` was deprecated and replaced by `sdar`)
+3.  Change into the `gbdk-n` submodule's directory and compile it
     - `cd gbdk-n && make`
     - ensure it compiles without errors
 4.  Change into the Source directory of mGB
@@ -20,6 +18,13 @@ mGB is a Gameboy cartridge program (You need a Flash Cart and Transfer hardware)
     - output will be in that dir, `mgb.gb`
 
 ## Change Log
+* 03/01/22
+  * Project was moved to this repo where I updated dependencies and the sdcc/makefile toolchain so that it builds in modern day
+  * Gameboy color palettes were fixed for versions compiled with the Makefile
+  * Preset saving fixed
+  * WIP fix notes over G5 not working in MIDI channels
+  * 
+
  * 06/26/15 
    * Project has been moved to GitHub along with sourcecode.
  * 12/21/12 1.3.3
@@ -165,3 +170,4 @@ void toggleScreen()
 
 - Compile and run to test on real hardware
 - Ensure MIDI actually works too
+
